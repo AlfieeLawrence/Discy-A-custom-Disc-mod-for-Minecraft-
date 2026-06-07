@@ -1,0 +1,41 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "MIT"
+
+[[mods]]
+modId = "discy"
+version = "${version}"
+displayName = "Discy"
+authors = "Alfie Lawrence"
+description = '''Custom music discs — burn uploads at the DJ deck or add permanent discs via JSON'''
+logoFile="icon.png"
+
+[[mixins]]
+config = "discy.mixins.json"
+
+[[mixins]]
+config = "discy.sophisticatedcore.mixins.json"
+
+[[mixins]]
+config = "discy.furniture.mixins.json"
+
+[[dependencies.discy]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.discy]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.discy]]
+modId = "architectury"
+mandatory = true
+versionRange = "[9.2.14,)"
+ordering = "NONE"
+side = "BOTH"

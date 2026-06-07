@@ -1,0 +1,109 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+}
+
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+archivesBaseName = rootProject.archives_base_name + "-forge"
+
+loom {
+    forge {
+        mixinConfig "discy.mixins.json"
+        mixinConfig "discy.sophisticatedcore.mixins.json"
+        mixinConfig "discy.furniture.mixins.json"
+    }
+    mixin {
+        defaultRefmapName = "discy-forge-refmap.json"
+    }
+    accessWidenerPath = project(":common").file("src/main/resources/discy.accesswidener")
+}
+
+configurations {
+    common
+    shadowCommon
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+}
+
+dependencies {
+    forge "net.minecraftforge:forge:${rootProject.forge_version}"
+    modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
+    compileOnly(files("${rootProject.projectDir}/libs/sophisticatedcore.jar"))
+    compileOnly(files("${rootProject.projectDir}/libs/furniture-fabric-1.0.4.jar"))
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive false }
+    shadowCommon("javazoom:jlayer:1.0.1")
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+    exclude "architectury.common.json"
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier.set("dev-shadow")
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set(null)
+}
+
+jar {
+    archiveClassifier.set("dev")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named("classes").configure {
+    dependsOn("mergeForgeRefmap")
+}
+
+tasks.register("mergeForgeRefmap") {
+    dependsOn(tasks.compileJava)
+    inputs.file("refmap/discy-forge-refmap-supplement.json")
+    outputs.file(layout.buildDirectory.file("classes/java/main/discy-forge-refmap.json"))
+
+    doLast {
+        def outFile = outputs.files.singleFile
+        def supplement = new groovy.json.JsonSlurper().parse(inputs.files.singleFile)
+        def merged = outFile.exists()
+                ? new groovy.json.JsonSlurper().parse(outFile)
+                : [mappings: [:], data: [:]]
+
+        supplement.mappings.each { mixin, entries ->
+            merged.mappings[mixin] = (merged.mappings[mixin] ?: [:]) + entries
+        }
+        supplement.data.each { namespace, mixins ->
+            merged.data[namespace] = merged.data[namespace] ?: [:]
+            mixins.each { mixin, entries ->
+                merged.data[namespace][mixin] = (merged.data[namespace][mixin] ?: [:]) + entries
+            }
+        }
+
+        outFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(merged))
+    }
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}

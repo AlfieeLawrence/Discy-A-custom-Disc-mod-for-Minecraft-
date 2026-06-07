@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "discy",
+  "version": "${version}",
+  "name": "Discy",
+  "description": "Custom music discs — burn uploads at the DJ deck or add permanent discs via JSON",
+  "authors": ["Alfie Lawrence"],
+  "contact": {
+    "sources": "https://github.com/AlfieeLawrence/Discy-A-custom-Disc-mod-for-Minecraft-"
+  },
+  "license": "MIT",
+  "icon": "assets/discy/icon.png",
+  "environment": "*",
+  "accessWidener": "discy.accesswidener",
+  "mixins": [
+    "discy.mixins.json",
+    "discy.sophisticatedcore.mixins.json",
+    "discy.furniture.mixins.json"
+  ],
+  "entrypoints": {
+    "main": [
+      "net.discy.fabric.DiscyFabric"
+    ],
+    "client": [
+      "net.discy.fabric.DiscyFabricClient"
+    ]
+  },
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.20.1",
+    "architectury": ">=9.2.14"
+  },
+  "suggests": {
+    "sophisticatedcore": "*",
+    "sophisticatedbackpacks": "*",
+    "furniture": "*"
+  }
+}

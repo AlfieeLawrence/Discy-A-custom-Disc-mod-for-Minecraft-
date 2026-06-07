@@ -1,0 +1,8 @@
+{
+    "type": "minecraft:blasting",
+    "category": "misc",
+    "ingredient": { "item": "discy:tree_sap" },
+    "result": "discy:moldable_sap",
+    "experience": 0.1,
+    "cookingtime": 100
+}

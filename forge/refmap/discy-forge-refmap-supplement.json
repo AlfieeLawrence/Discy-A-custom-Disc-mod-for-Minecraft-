@@ -1,0 +1,16 @@
+{
+  "mappings": {
+    "net/discy/forge/mixin/furniture/GramophoneBlockEntityMixin": {
+      "load(Lnet/minecraft/nbt/CompoundTag;)V": "Lcom/berksire/furniture/block/entity/GramophoneBlockEntity;m_142466_(Lnet/minecraft/nbt/CompoundTag;)V",
+      "Lnet/minecraft/world/item/RecordItem;getLengthInTicks()I": "Lnet/minecraft/world/item/RecordItem;m_43036_()I"
+    }
+  },
+  "data": {
+    "searge": {
+      "net/discy/forge/mixin/furniture/GramophoneBlockEntityMixin": {
+        "load(Lnet/minecraft/nbt/CompoundTag;)V": "Lcom/berksire/furniture/block/entity/GramophoneBlockEntity;m_142466_(Lnet/minecraft/nbt/CompoundTag;)V",
+        "Lnet/minecraft/world/item/RecordItem;getLengthInTicks()I": "Lnet/minecraft/world/item/RecordItem;m_43036_()I"
+      }
+    }
+  }
+}

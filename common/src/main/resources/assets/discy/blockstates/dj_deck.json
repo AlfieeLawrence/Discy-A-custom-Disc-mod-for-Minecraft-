@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "discy:block/dj_deck", "y": 0   },
+        "facing=east":  { "model": "discy:block/dj_deck", "y": 90  },
+        "facing=south": { "model": "discy:block/dj_deck", "y": 180 },
+        "facing=west":  { "model": "discy:block/dj_deck", "y": 270 }
+    }
+}

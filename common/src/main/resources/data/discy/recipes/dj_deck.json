@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "key": {
+        "R": { "item": "minecraft:redstone" },
+        "C": { "item": "minecraft:copper_ingot" },
+        "B": { "item": "discy:blank_music_disc" },
+        "J": { "item": "minecraft:jukebox" },
+        "I": { "item": "minecraft:iron_ingot" }
+    },
+    "pattern": [
+        "RCR",
+        "BJB",
+        "ICI"
+    ],
+    "result": {
+        "item": "discy:dj_deck",
+        "count": 1
+    }
+}

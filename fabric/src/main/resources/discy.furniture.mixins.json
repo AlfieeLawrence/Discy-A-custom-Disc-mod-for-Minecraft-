@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "net.discy.fabric.mixin.furniture",
+  "compatibilityLevel": "JAVA_17",
+  "plugin": "net.discy.mixin.DiscyMixinPlugin",
+  "mixins": [
+    "GramophoneBlockEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

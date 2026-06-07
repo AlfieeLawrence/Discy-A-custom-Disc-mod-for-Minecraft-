@@ -1,0 +1,58 @@
+# Gradle
+.gradle/
+build/
+out/
+classes/
+
+# IDE - Eclipse
+*.launch
+
+# IDE - IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# IDE - Visual Studio Code
+.settings/
+.vscode/
+bin/
+.classpath
+.project
+
+# Fabric / Forge run dir
+run/
+
+# Architectury
+.architectury-transformer/
+
+# Local recovery / scratch
+_recovered_from_transcript/
+
+# Compile-only mod JARs and extracted classes (see libs/README.md)
+libs/**
+!libs/README.md
+
+# Never commit third-party refmaps or jar-patch artifacts
+forge/ssim/
+
+# Generated refmaps at repo root (build output)
+discy.refmap.json
+discy-forge-refmap.json
+
+# Java compile output (outside build/)
+*.class
+
+# Logs
+*.log
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Minecraft (outside run/)
+crash-reports/
+logs/

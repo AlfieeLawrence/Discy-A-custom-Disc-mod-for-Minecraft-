@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.discy.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "plugin": "net.discy.mixin.DiscyMixinPlugin",
+  "mixins": [
+    "JukeboxBlockEntityMixin",
+    "ServerLevelMixin"
+  ],
+  "client": [
+    "ItemRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "discy.refmap.json"
+}

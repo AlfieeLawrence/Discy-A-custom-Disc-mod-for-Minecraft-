@@ -1,0 +1,4 @@
+{
+  "_comment": "Add baked-in music discs here. For each entry also add: assets/discy/sounds/<sound>.ogg, assets/discy/sounds.json entry, assets/discy/textures/item/<texture>.png (defaults to id), and lang lines item.discy.<id> + item.discy.<id>.desc",
+  "discs": []
+}

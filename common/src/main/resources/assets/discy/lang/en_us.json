@@ -1,0 +1,13 @@
+{
+  "creativetab.discy.tab": "Discy",
+  "item.discy.custom_disc": "Custom Music Disc",
+  "item.discy.custom_disc.unbound": "Unbound — burn at a DJ deck",
+  "item.discy.now_playing.generic": "Now playing custom disc",
+  "item.discy.blank_music_disc": "Blank Music Disc",
+  "item.discy.tree_sap": "Tree Sap",
+  "item.discy.moldable_sap": "Moldable Sap",
+  "item.discy.dj_deck": "DJ Deck",
+  "block.discy.dj_deck": "DJ Deck",
+  "subtitles.discy.sound.silent": "",
+  "subtitles.discy.sound.custom_disc": "Custom disc playing"
+}

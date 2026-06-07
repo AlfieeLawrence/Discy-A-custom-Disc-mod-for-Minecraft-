@@ -1,0 +1,20 @@
+{
+  "silent": {
+    "subtitle": "subtitles.discy.sound.silent",
+    "sounds": [
+      {
+        "name": "minecraft:random/click",
+        "volume": 0.001
+      }
+    ]
+  },
+  "custom_disc_sound": {
+    "subtitle": "subtitles.discy.sound.custom_disc",
+    "sounds": [
+      {
+        "name": "minecraft:random/click",
+        "volume": 0.001
+      }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+    "parent": "minecraft:block/cube_bottom_top",
+    "textures": {
+        "particle": "discy:block/dj_deck_side",
+        "top": "discy:block/dj_deck_top",
+        "side": "discy:block/dj_deck_side",
+        "bottom": "discy:block/dj_deck_bottom"
+    }
+}

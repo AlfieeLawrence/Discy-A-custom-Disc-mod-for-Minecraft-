@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "key": {
+        "G": { "item": "minecraft:gold_nugget" },
+        "I": { "item": "minecraft:iron_nugget" },
+        "S": { "item": "discy:moldable_sap" }
+    },
+    "pattern": [
+        "GIG",
+        "ISI",
+        "GIG"
+    ],
+    "result": {
+        "item": "discy:blank_music_disc",
+        "count": 1
+    }
+}

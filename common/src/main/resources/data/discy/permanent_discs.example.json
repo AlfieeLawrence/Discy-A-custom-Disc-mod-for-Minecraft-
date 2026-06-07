@@ -1,0 +1,10 @@
+{
+  "discs": [
+    {
+      "id": "my_song",
+      "sound": "my_song",
+      "length_seconds": 180,
+      "texture": "my_song"
+    }
+  ]
+}
