@@ -76,3 +76,6 @@ Users must install compatibility mods from their official authors. Discy only ad
 - **Let's Do Furniture** — copyright the Furniture mod authors. Install from [official releases](https://modrinth.com/mod/lets-do-furniture) only, under that mod's own license. Discy provides optional gramophone integration via mixin when Furniture is installed and does not redistribute or modify Furniture files.
 
 If you publish forks or derivatives of Discy, keep these mods as separate optional runtime dependencies.
+
+### Credit
+Design Credit goes to RandomNautilus for most item textures included in the game, and MrDragonclaw for Sap and Ui textures
