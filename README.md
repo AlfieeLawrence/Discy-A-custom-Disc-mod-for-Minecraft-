@@ -25,7 +25,7 @@ A Minecraft 1.20.1 mod for custom music discs. Upload songs at the DJ deck, burn
 
 ### Optional compatibility mods
 
-Discy does **not** bundle these. Download official releases yourself:
+Discy does **not** bundle these mods. Install **official releases** from Modrinth or CurseForge under each mod's own license:
 
 | Mod | Purpose |
 |-----|---------|
@@ -70,9 +70,9 @@ Discy provides **optional** integration with other mods via mixins and public AP
 - Ship their source code, assets, or JARs
 - Include modified versions of their files
 
-Users must install compatibility mods from their official authors:
+Users must install compatibility mods from their official authors. Discy only adds small optional mixins and API hooks when those mods are present at runtime.
 
-- **Sophisticated Core / Storage / Backpacks** — copyright P3pp3rF1y, [All Rights Reserved](https://github.com/P3pp3rf1y/SophisticatedCore). Discy registers against public APIs (`IDiscHandler`, `SoundHandler`) and uses small compatibility mixins when Sophisticated Core is present.
-- **Let's Do Furniture** — gramophone integration via optional mixin when Furniture is installed.
+- **Sophisticated Core / Storage / Backpacks** — copyright P3pp3rF1y, [All Rights Reserved](https://github.com/P3pp3rf1y/SophisticatedCore). Install from official releases only. Discy registers against public APIs (`IDiscHandler`, `SoundHandler`) and does not redistribute or modify Sophisticated files.
+- **Let's Do Furniture** — copyright the Furniture mod authors. Install from [official releases](https://modrinth.com/mod/lets-do-furniture) only, under that mod's own license. Discy provides optional gramophone integration via mixin when Furniture is installed and does not redistribute or modify Furniture files.
 
 If you publish forks or derivatives of Discy, keep these mods as separate optional runtime dependencies.
