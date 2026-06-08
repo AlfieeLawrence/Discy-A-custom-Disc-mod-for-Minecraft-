@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.discy.Discy;
+import net.discy.core.block.DiscDesignStudioBlock;
 import net.discy.core.block.DjDeckBlock;
 import net.discy.core.item.BlankMusicDiscItem;
 import net.discy.core.item.CustomDiscItem;
@@ -34,6 +35,14 @@ public class ObjectRegistry {
                     .sound(net.minecraft.world.level.block.SoundType.METAL)));
     public static final RegistrySupplier<Item> DJ_DECK_ITEM = registerItem("dj_deck",
             () -> new BlockItem(DJ_DECK_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistrySupplier<Block> DISC_DESIGN_STUDIO_BLOCK = registerBlock("disc_design_studio",
+            () -> new DiscDesignStudioBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_PURPLE)
+                    .strength(2.5f)
+                    .sound(net.minecraft.world.level.block.SoundType.WOOD)));
+    public static final RegistrySupplier<Item> DISC_DESIGN_STUDIO_ITEM = registerItem("disc_design_studio",
+            () -> new BlockItem(DISC_DESIGN_STUDIO_BLOCK.get(), new Item.Properties()));
 
     public static final RegistrySupplier<Item> BLANK_MUSIC_DISC = registerItem("blank_music_disc",
             () -> new BlankMusicDiscItem(new Item.Properties().stacksTo(16)));

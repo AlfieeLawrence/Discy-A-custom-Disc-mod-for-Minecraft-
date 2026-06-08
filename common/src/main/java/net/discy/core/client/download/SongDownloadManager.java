@@ -39,6 +39,17 @@ public class SongDownloadManager {
         }
     }
 
+    public static void deleteLocalSong(String hash) {
+        activeDownloads.remove(hash);
+        SongLibrary.deleteSongFiles(hash);
+        SongLibrary.get().removeSong(hash);
+    }
+
+    public static void renameLocalSong(String hash, String newDisplayName) {
+        SongLibrary.updateSongDisplayNameOnDisk(hash, newDisplayName);
+        SongLibrary.get().renameSong(hash, newDisplayName);
+    }
+
     private static void completeDownload(String hash) {
         DownloadState state = activeDownloads.remove(hash);
         if (state == null) return;

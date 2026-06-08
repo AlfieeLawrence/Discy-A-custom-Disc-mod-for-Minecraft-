@@ -18,7 +18,6 @@ loom {
     mixin {
         defaultRefmapName = "discy-forge-refmap.json"
     }
-    accessWidenerPath = project(":common").file("src/main/resources/discy.accesswidener")
 }
 
 configurations {

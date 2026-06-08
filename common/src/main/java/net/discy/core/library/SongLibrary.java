@@ -65,6 +65,70 @@ public class SongLibrary {
         songs.remove(hash);
     }
 
+    public boolean renameSong(String hash, String newDisplayName) {
+        SongInfo existing = songs.get(hash);
+        if (existing == null) return false;
+        String trimmed = newDisplayName.trim();
+        if (trimmed.isBlank()) return false;
+        songs.put(hash, new SongInfo(hash, trimmed, existing.lengthSeconds(), existing.soundId(), existing.source()));
+        return true;
+    }
+
+    /** Updates the per-song sidecar {@code display_name} on disk. */
+    public static boolean updateSongDisplayNameOnDisk(String hash, String displayName) {
+        Path audio = findAudioPath(hash);
+        if (audio == null) return false;
+        SongInfo song = get().getSong(hash);
+        int lengthSeconds = song != null ? song.lengthSeconds() : 180;
+        String stem = audio.getFileName().toString();
+        int dot = stem.lastIndexOf('.');
+        if (dot > 0) stem = stem.substring(0, dot);
+        Path metaPath = audio.getParent().resolve(stem + ".json");
+        try {
+            writeSidecar(metaPath, displayName, lengthSeconds);
+            return true;
+        } catch (IOException e) {
+            LOGGER.warn("Could not update sidecar for {}: {}", hash.substring(0, Math.min(8, hash.length())), e.getMessage());
+            return false;
+        }
+    }
+
+    public void removeTexture(String textureId) {
+        textures.remove(textureId);
+    }
+
+    /** Delete on-disk audio and sidecar for a library hash. Returns true if the audio file was removed. */
+    public static boolean deleteSongFiles(String hash) {
+        Path audio = findAudioPath(hash);
+        if (audio == null) return false;
+        try {
+            String stem = audio.getFileName().toString();
+            int dot = stem.lastIndexOf('.');
+            if (dot > 0) stem = stem.substring(0, dot);
+            Path meta = audio.getParent().resolve(stem + ".json");
+            Files.deleteIfExists(audio);
+            Files.deleteIfExists(meta);
+            return true;
+        } catch (IOException e) {
+            LOGGER.warn("Could not delete song files for {}: {}", hash.substring(0, Math.min(8, hash.length())), e.getMessage());
+            return false;
+        }
+    }
+
+    /** Delete a user-uploaded texture PNG. Preset stems are not deleted. */
+    public static boolean deleteTextureFile(String stem) {
+        if (stem == null || stem.isBlank()) return false;
+        Path file = diskTexturesDir().resolve(stem + ".png");
+        if (!Files.isRegularFile(file)) return false;
+        try {
+            Files.delete(file);
+            return true;
+        } catch (IOException e) {
+            LOGGER.warn("Could not delete texture {}: {}", stem, e.getMessage());
+            return false;
+        }
+    }
+
     public SongInfo getSong(String hash) {
         return songs.get(hash);
     }

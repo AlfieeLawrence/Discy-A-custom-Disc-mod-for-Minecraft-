@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -14,8 +15,10 @@ import net.discy.core.client.texture.DiskTextureManager;
 import net.discy.core.client.texture.PermanentDiscTextures;
 import net.discy.core.client.upload.TextureUploadManager;
 import net.discy.core.client.upload.UploadManager;
+import net.discy.core.network.DiscyNetworking;
 import net.discy.core.screen.DjDeckLayout;
 import net.discy.core.screen.DjDeckMenu;
+import net.discy.mixin.client.AbstractContainerScreenInvokerMixin;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 
@@ -62,7 +65,16 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
     private final List<TexEntry> texEntries = new ArrayList<>();
     private boolean loadingTextures;
 
-    private record TexEntry(String label, net.minecraft.resources.ResourceLocation loc) {}
+    private static final int CONTEXT_MENU_W = 80;
+    private static final int CONTEXT_ITEM_H = 20;
+    private static final int CONTEXT_BORDER = 1;
+
+    private final List<Button> contextMenuButtons = new ArrayList<>();
+    private int contextMenuX;
+    private int contextMenuY;
+    private int contextMenuHeight;
+
+    private record TexEntry(String label, net.minecraft.resources.ResourceLocation loc, boolean userTexture) {}
 
     public DjDeckScreen(DjDeckMenu menu, Inventory inv, Component title) {
         super(menu, inv, title);
@@ -76,6 +88,7 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
 
     @Override
     protected void init() {
+        closeContextMenu();
         super.init();
         rebuildFiltered();
         if (activeTab == 1) loadTexEntriesAsync();
@@ -95,7 +108,7 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
             actionButton.setMessage(Component.literal("Upload & burn..."));
             actionButton.active = !UploadManager.isUploading();
         } else {
-            actionButton.setMessage(Component.literal("Upload many PNGs"));
+            actionButton.setMessage(Component.literal("Upload PNGs"));
             actionButton.active = !TextureUploadManager.isUploading();
         }
         actionButton.visible = true;
@@ -110,6 +123,7 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
     }
 
     private void setTab(int tab) {
+        closeContextMenu();
         activeTab = tab;
         if (tab != 0) {
             searchFocused = false;
@@ -143,14 +157,106 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
         loadingTextures = true;
         texEntries.clear();
         for (PermanentDiscTextures.Entry entry : PermanentDiscTextures.presetEntries()) {
-            texEntries.add(new TexEntry(entry.label(), entry.texture()));
+            texEntries.add(new TexEntry(entry.label(), entry.texture(), false));
         }
         DiskTextureManager.scanUserTextureStemsAsync(stems -> {
             for (String stem : stems) {
-                texEntries.add(new TexEntry(stem, DiskTextureManager.rlForStem(stem)));
+                texEntries.add(new TexEntry(stem, DiskTextureManager.rlForStem(stem), true));
             }
             loadingTextures = false;
         });
+    }
+
+    public void onSongRemoved(String hash) {
+        closeContextMenu();
+        menu.removeSongRow(hash);
+        rebuildFiltered();
+    }
+
+    public void onSongRenamed(String hash) {
+        closeContextMenu();
+        var song = net.discy.core.library.SongLibrary.get().getSong(hash);
+        if (song != null) {
+            menu.updateSongRow(hash, song.displayName(), song.lengthSeconds());
+            rebuildFiltered();
+        }
+    }
+
+    public void onTextureRemoved(String label) {
+        closeContextMenu();
+        texEntries.removeIf(e -> e.userTexture() && e.label().equals(label));
+    }
+
+    private void closeContextMenu() {
+        for (Button button : contextMenuButtons) {
+            removeWidget(button);
+        }
+        contextMenuButtons.clear();
+        contextMenuHeight = 0;
+    }
+
+    private void openContextMenu(int x, int y, List<ContextMenuItem> items) {
+        closeContextMenu();
+        if (items.isEmpty()) return;
+
+        contextMenuHeight = items.size() * CONTEXT_ITEM_H;
+        contextMenuX = Mth.clamp(x, 4, width - CONTEXT_MENU_W - 4);
+        contextMenuY = Mth.clamp(y, 4, height - contextMenuHeight - 4);
+
+        int itemY = contextMenuY;
+        for (ContextMenuItem item : items) {
+            int finalItemY = itemY;
+            Button button = Button.builder(Component.literal(item.label()), b -> {
+                closeContextMenu();
+                item.action().run();
+            }).bounds(contextMenuX, finalItemY, CONTEXT_MENU_W, CONTEXT_ITEM_H).build();
+            contextMenuButtons.add(button);
+            addRenderableWidget(button);
+            itemY += CONTEXT_ITEM_H;
+        }
+    }
+
+    private void openSongContextMenu(int x, int y, DjDeckMenu.SongRow song) {
+        String hash = song.hash();
+        String name = song.displayName();
+        openContextMenu(x, y, List.of(
+                new ContextMenuItem("Rename", () ->
+                        minecraft.setScreen(new SongRenameScreen(this, hash, name))),
+                new ContextMenuItem("Remove", () -> DiscyNetworking.sendRemoveSong(hash))
+        ));
+    }
+
+    private void openTextureContextMenu(int x, int y, String label) {
+        openContextMenu(x, y, List.of(
+                new ContextMenuItem("Remove", () -> DiscyNetworking.sendRemoveTexture(label))
+        ));
+    }
+
+    private boolean isContextMenuOpen() {
+        return !contextMenuButtons.isEmpty();
+    }
+
+    private void renderContextMenuBackdrop(GuiGraphics g) {
+        if (!isContextMenuOpen()) return;
+        int x0 = contextMenuX - CONTEXT_BORDER;
+        int y0 = contextMenuY - CONTEXT_BORDER;
+        int x1 = contextMenuX + CONTEXT_MENU_W + CONTEXT_BORDER;
+        int y1 = contextMenuY + contextMenuHeight + CONTEXT_BORDER;
+        g.fill(x0, y0, x1, y1, 0xF0101010);
+        g.fill(x0, y0, x1, y0 + 1, 0xFF808080);
+        g.fill(x0, y1 - 1, x1, y1, 0xFF202020);
+        g.fill(x0, y0, x0 + 1, y1, 0xFF808080);
+        g.fill(x1 - 1, y0, x1, y1, 0xFF202020);
+    }
+
+    private record ContextMenuItem(String label, Runnable action) {}
+
+    private void renderWidgets(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        for (GuiEventListener child : this.children()) {
+            if (child instanceof net.minecraft.client.gui.components.Renderable renderable) {
+                renderable.render(g, mouseX, mouseY, partialTick);
+            }
+        }
     }
 
     private void startUploadBurnFlow() {
@@ -169,7 +275,7 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
     protected void containerTick() {
         super.containerTick();
         updateActionButton();
-        if (hoveredSongIndex >= 0 && hoveredSongIndex < filteredRows.size()) {
+        if (!isContextMenuOpen() && hoveredSongIndex >= 0 && hoveredSongIndex < filteredRows.size()) {
             String name = filteredRows.get(hoveredSongIndex).displayName();
             if (font.width(name) > NAME_MAX_W) {
                 marqueeTick++;
@@ -191,11 +297,14 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
         this.renderLabels(g, mouseX, mouseY);
         for (Slot slot : this.menu.slots) {
             if (slot.isActive()) {
-                this.renderSlot(g, slot);
+                ((AbstractContainerScreenInvokerMixin) this).discy$invokeRenderSlot(g, slot);
             }
         }
         g.pose().popPose();
-        super.render(g, mouseX, mouseY, partialTick);
+        renderContextMenuBackdrop(g);
+        // Render widgets only — AbstractContainerScreen.render would call renderLabels again
+        // and draw song hover highlights on top of the context menu.
+        renderWidgets(g, mouseX, mouseY, partialTick);
         this.renderTooltip(g, mouseX, mouseY);
         RenderSystem.enableDepthTest();
     }
@@ -302,6 +411,7 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
         int absGx = leftPos + gx;
         int absGy = topPos + gy;
         hoveredSongIndex = -1;
+        boolean suppressHover = isContextMenuOpen();
 
         if (filteredRows.isEmpty()) {
             String msg = searchQuery.isBlank() ? "No songs yet" : "No matches";
@@ -320,7 +430,8 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
             DjDeckMenu.SongRow row = filteredRows.get(idx);
             int ry = gy + i * DjDeckLayout.ROW_HEIGHT;
             int absRy = topPos + ry;
-            boolean hovered = mouseX >= absGx && mouseX < absGx + DjDeckLayout.CONTENT_W
+            boolean hovered = !suppressHover
+                    && mouseX >= absGx && mouseX < absGx + DjDeckLayout.CONTENT_W
                     && mouseY >= absRy && mouseY < absRy + DjDeckLayout.ROW_HEIGHT;
             if (hovered) {
                 hoveredSongIndex = idx;
@@ -464,6 +575,20 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (isContextMenuOpen()) {
+            for (Button menuButton : contextMenuButtons) {
+                if (menuButton.isMouseOver(mouseX, mouseY)) {
+                    return menuButton.mouseClicked(mouseX, mouseY, button);
+                }
+            }
+            closeContextMenu();
+            if (button == 1) {
+                // fall through so a new right-click can open a menu on another row
+            } else {
+                return true;
+            }
+        }
+
         if (handleTabClick(mouseX, mouseY)) return true;
 
         if (activeTab == 0) {
@@ -478,27 +603,71 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
 
             int gx = sx;
             int gy = topPos + DjDeckLayout.LIST_Y;
-            if (button == 0 && mouseX >= gx && mouseX < gx + DjDeckLayout.CONTENT_W
+            if (mouseX >= gx && mouseX < gx + DjDeckLayout.CONTENT_W
                     && mouseY >= gy && mouseY < gy + DjDeckLayout.LIST_H) {
                 int row = (int) ((mouseY - gy) / DjDeckLayout.ROW_HEIGHT);
                 int idx = scrollOffset + row;
                 if (idx >= 0 && idx < filteredRows.size()) {
-                    if (menu.getDiscStack().isEmpty()) {
-                        if (minecraft.player != null) {
-                            minecraft.player.displayClientMessage(
-                                    Component.literal("Insert a blank disc in the slot first.")
-                                            .withStyle(ChatFormatting.YELLOW), false);
-                        }
+                    if (button == 1) {
+                        openSongContextMenu((int) mouseX, (int) mouseY, filteredRows.get(idx));
                         return true;
                     }
-                    DjDeckMenu.SongRow song = filteredRows.get(idx);
-                    minecraft.setScreen(new TexturePickerScreen(this, song.hash(), song.displayName(), menu.getDeckPos()));
+                    if (button == 0) {
+                        if (menu.getDiscStack().isEmpty()) {
+                            if (minecraft.player != null) {
+                                minecraft.player.displayClientMessage(
+                                        Component.literal("Insert a blank disc in the slot first.")
+                                                .withStyle(ChatFormatting.YELLOW), false);
+                            }
+                            return true;
+                        }
+                        DjDeckMenu.SongRow song = filteredRows.get(idx);
+                        minecraft.setScreen(new TexturePickerScreen(this, song.hash(), song.displayName(), menu.getDeckPos()));
+                        return true;
+                    }
+                }
+            }
+        } else if (activeTab == 1 && button == 1) {
+            int texIdx = textureIndexAt(mouseX, mouseY);
+            if (texIdx >= 0) {
+                TexEntry entry = texEntries.get(texIdx);
+                if (entry.userTexture()) {
+                    openTextureContextMenu((int) mouseX, (int) mouseY, entry.label());
                     return true;
                 }
             }
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private int textureIndexAt(double mouseX, double mouseY) {
+        int gx = leftPos + DjDeckLayout.CONTENT_X;
+        int gy = topPos + DjDeckLayout.SEARCH_Y;
+        int gh = DjDeckLayout.BUTTON_Y - DjDeckLayout.SEARCH_Y - 2;
+        if (mouseX < gx || mouseX >= gx + DjDeckLayout.CONTENT_W
+                || mouseY < gy || mouseY >= gy + gh) {
+            return -1;
+        }
+
+        int cols = texGridCols();
+        int visibleRows = texGridVisibleRows(gh);
+        int stepX = texGridStepX(cols);
+        int stepY = texGridStepY(gh, visibleRows);
+        int start = texScrollRow * cols;
+        int end = Math.min(texEntries.size(), start + visibleRows * cols);
+        for (int i = start; i < end; i++) {
+            int rel = i - start;
+            int row = rel / cols;
+            int col = rel % cols;
+            int cx = gx + TEX_PAD + col * stepX;
+            int cy = gy + TEX_PAD + row * stepY;
+            if (mouseX >= cx && mouseX < cx + TEX_CELL + 2
+                    && mouseY >= cy && mouseY < cy + TEX_CELL + 2) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private boolean handleTabClick(double mouseX, double mouseY) {

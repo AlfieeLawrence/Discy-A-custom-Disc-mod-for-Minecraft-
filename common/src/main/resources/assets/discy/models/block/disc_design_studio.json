@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "discy:block/disc_design_studio_side_1",
+    "up": "discy:block/disc_design_studio_top",
+    "down": "discy:block/dj_deck_bottom",
+    "north": "discy:block/disc_design_studio_side_1",
+    "east": "discy:block/disc_design_studio_side_2",
+    "south": "discy:block/disc_design_studio_side_3",
+    "west": "discy:block/disc_design_studio_side_4"
+  }
+}

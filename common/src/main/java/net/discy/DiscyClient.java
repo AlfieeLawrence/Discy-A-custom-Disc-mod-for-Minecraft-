@@ -8,8 +8,11 @@ import dev.architectury.registry.menu.MenuRegistry;
 import net.minecraft.core.BlockPos;
 import net.discy.core.client.CustomDiscPlayer;
 import net.discy.core.client.DiscPixelCache;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.discy.core.client.download.SongDownloadManager;
 import net.discy.core.client.screen.DjDeckScreen;
+import net.discy.core.client.screen.SongRenameScreen;
 import net.discy.core.client.texture.DiskTextureManager;
 import net.discy.core.client.upload.UploadManager;
 import net.discy.core.library.SongInfo;
@@ -126,6 +129,40 @@ public class DiscyClient {
             context.queue(() -> SongLibrary.get().addTexture(label));
         });
 
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C, DiscyNetworking.SONG_REMOVED, (buf, context) -> {
+            String hash = buf.readUtf();
+            context.queue(() -> {
+                SongDownloadManager.deleteLocalSong(hash);
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.screen instanceof DjDeckScreen deckScreen) {
+                    deckScreen.onSongRemoved(hash);
+                }
+            });
+        });
+
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C, DiscyNetworking.SONG_RENAMED, (buf, context) -> {
+            String hash = buf.readUtf();
+            String displayName = buf.readUtf();
+            context.queue(() -> {
+                SongDownloadManager.renameLocalSong(hash, displayName);
+                notifyDeckSongRenamed(hash);
+            });
+        });
+
+        NetworkManager.registerReceiver(NetworkManager.Side.S2C, DiscyNetworking.TEXTURE_REMOVED, (buf, context) -> {
+            String label = buf.readUtf();
+            context.queue(() -> {
+                SongLibrary.deleteTextureFile(label);
+                SongLibrary.get().removeTexture(label);
+                DiskTextureManager.release(label);
+                DiscPixelCache.evict(label);
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.screen instanceof DjDeckScreen deckScreen) {
+                    deckScreen.onTextureRemoved(label);
+                }
+            });
+        });
+
         NetworkManager.registerReceiver(NetworkManager.Side.S2C, DiscyNetworking.DISTRIBUTE_TEXTURE, (buf, context) -> {
             String label = buf.readUtf(128);
             byte[] pngBytes = buf.readByteArray();
@@ -166,5 +203,16 @@ public class DiscyClient {
         ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> stopAllAudio.run());
 
         ClientLifecycleEvent.CLIENT_STOPPING.register(client -> stopAllAudio.run());
+    }
+
+    private static void notifyDeckSongRenamed(String hash) {
+        Minecraft mc = Minecraft.getInstance();
+        Screen screen = mc.screen;
+        if (screen instanceof DjDeckScreen deckScreen) {
+            deckScreen.onSongRenamed(hash);
+        } else if (screen instanceof SongRenameScreen renameScreen
+                && renameScreen.getParentScreen() instanceof DjDeckScreen deckScreen) {
+            deckScreen.onSongRenamed(hash);
+        }
     }
 }

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": { "item": "discy:blank_music_disc" },
+    "D": { "item": "minecraft:red_dye" },
+    "P": { "item": "minecraft:painting" },
+    "W": { "item": "minecraft:oak_planks" }
+  },
+  "pattern": [
+    "WPW",
+    "DBD",
+    "WPW"
+  ],
+  "result": {
+    "item": "discy:disc_design_studio",
+    "count": 1
+  }
+}

@@ -24,6 +24,7 @@ public class TabRegistry {
                         }
                         output.accept(ObjectRegistry.CUSTOM_DISC.get());
                         output.accept(ObjectRegistry.DJ_DECK_ITEM.get());
+                        output.accept(ObjectRegistry.DISC_DESIGN_STUDIO_ITEM.get());
                         output.accept(ObjectRegistry.BLANK_MUSIC_DISC.get());
                         output.accept(ObjectRegistry.TREE_SAP.get());
                         output.accept(ObjectRegistry.MOLDABLE_SAP.get());

@@ -9,7 +9,8 @@
     "ServerLevelMixin"
   ],
   "client": [
-    "ItemRendererMixin"
+    "ItemRendererMixin",
+    "client.AbstractContainerScreenInvokerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "discy:block/disc_design_studio" },
+    "facing=south": { "model": "discy:block/disc_design_studio", "y": 180 },
+    "facing=west": { "model": "discy:block/disc_design_studio", "y": 270 },
+    "facing=east": { "model": "discy:block/disc_design_studio", "y": 90 }
+  }
+}

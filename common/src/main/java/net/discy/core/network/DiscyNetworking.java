@@ -19,6 +19,7 @@ import net.discy.core.library.SongInfo;
 import net.discy.core.library.SongLibrary;
 import net.discy.core.network.upload.UploadHandler;
 import net.discy.core.registry.ObjectRegistry;
+import net.discy.core.client.texture.PermanentDiscTextures;
 import net.discy.core.screen.DjDeckMenu;
 import net.discy.core.screen.DjDeckMenus;
 import net.discy.core.util.DiscyIdentifier;
@@ -50,6 +51,12 @@ public class DiscyNetworking {
     public static final ResourceLocation SONG_LIST = new DiscyIdentifier("song_list");
     public static final ResourceLocation UPLOAD_TEXTURE = new DiscyIdentifier("upload_texture");
     public static final ResourceLocation TEXTURE_ADDED = new DiscyIdentifier("texture_added");
+    public static final ResourceLocation REMOVE_SONG = new DiscyIdentifier("remove_song");
+    public static final ResourceLocation REMOVE_TEXTURE = new DiscyIdentifier("remove_texture");
+    public static final ResourceLocation SONG_REMOVED = new DiscyIdentifier("song_removed");
+    public static final ResourceLocation RENAME_SONG = new DiscyIdentifier("rename_song");
+    public static final ResourceLocation SONG_RENAMED = new DiscyIdentifier("song_renamed");
+    public static final ResourceLocation TEXTURE_REMOVED = new DiscyIdentifier("texture_removed");
     public static final ResourceLocation DISTRIBUTE_TEXTURE = new DiscyIdentifier("distribute_texture");
     public static final ResourceLocation DISTRIBUTE_SONG = new DiscyIdentifier("distribute_song");
     public static final ResourceLocation DISTRIBUTE_SONG_CHUNK = new DiscyIdentifier("distribute_song_chunk");
@@ -144,6 +151,31 @@ public class DiscyNetworking {
                 context.queue(() -> handleUploadTexture(serverPlayer, label, pngBytes));
             }
         });
+
+        NetworkManager.registerReceiver(NetworkManager.Side.C2S, REMOVE_SONG, (buf, context) -> {
+            String songHash = buf.readUtf();
+            Player player = context.getPlayer();
+            if (player instanceof ServerPlayer serverPlayer) {
+                context.queue(() -> handleRemoveSong(serverPlayer, songHash));
+            }
+        });
+
+        NetworkManager.registerReceiver(NetworkManager.Side.C2S, REMOVE_TEXTURE, (buf, context) -> {
+            String label = buf.readUtf(128);
+            Player player = context.getPlayer();
+            if (player instanceof ServerPlayer serverPlayer) {
+                context.queue(() -> handleRemoveTexture(serverPlayer, label));
+            }
+        });
+
+        NetworkManager.registerReceiver(NetworkManager.Side.C2S, RENAME_SONG, (buf, context) -> {
+            String songHash = buf.readUtf();
+            String newName = buf.readUtf(64);
+            Player player = context.getPlayer();
+            if (player instanceof ServerPlayer serverPlayer) {
+                context.queue(() -> handleRenameSong(serverPlayer, songHash, newName));
+            }
+        });
     }
 
     private static void handleBurn(ServerPlayer player, BlockPos deckPos, String songHash,
@@ -206,6 +238,77 @@ public class DiscyNetworking {
             CustomDiscItem.bind(result, song, textureSlot);
         }
         return result;
+    }
+
+    private static void handleRemoveSong(ServerPlayer player, String songHash) {
+        if (songHash == null || songHash.isBlank()) return;
+
+        SongInfo song = SongLibrary.get().getSong(songHash);
+        if (song == null) {
+            player.sendSystemMessage(Component.literal("Song not found.")
+                    .withStyle(net.minecraft.ChatFormatting.RED));
+            return;
+        }
+
+        SongLibrary.deleteSongFiles(songHash);
+        SongLibrary.get().removeSong(songHash);
+        broadcastSongRemoved(songHash, player);
+        player.sendSystemMessage(Component.literal("Removed song: " + song.displayName())
+                .withStyle(net.minecraft.ChatFormatting.YELLOW));
+        LOGGER.info("Song removed: {} by {}", song.displayName(), player.getName().getString());
+    }
+
+    private static void handleRenameSong(ServerPlayer player, String songHash, String newName) {
+        if (songHash == null || songHash.isBlank() || newName == null) return;
+
+        String trimmed = newName.trim();
+        if (trimmed.isBlank() || trimmed.length() > 64) {
+            player.sendSystemMessage(Component.literal("Invalid song name.")
+                    .withStyle(net.minecraft.ChatFormatting.RED));
+            return;
+        }
+
+        SongInfo song = SongLibrary.get().getSong(songHash);
+        if (song == null) {
+            player.sendSystemMessage(Component.literal("Song not found.")
+                    .withStyle(net.minecraft.ChatFormatting.RED));
+            return;
+        }
+
+        if (trimmed.equals(song.displayName())) return;
+
+        SongLibrary.updateSongDisplayNameOnDisk(songHash, trimmed);
+        SongLibrary.get().renameSong(songHash, trimmed);
+        broadcastSongRenamed(songHash, trimmed, player);
+        player.sendSystemMessage(Component.literal("Renamed song to: " + trimmed)
+                .withStyle(net.minecraft.ChatFormatting.GREEN));
+        LOGGER.info("Song renamed: {} -> '{}' by {}", song.displayName(), trimmed, player.getName().getString());
+    }
+
+    private static void handleRemoveTexture(ServerPlayer player, String label) {
+        if (label == null || label.isBlank()) return;
+        String safe = label.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_]", "_");
+        if (safe.isBlank()) return;
+
+        if (PermanentDiscTextures.isExportedPresetStem(safe)) {
+            player.sendSystemMessage(Component.literal("Preset textures cannot be removed.")
+                    .withStyle(net.minecraft.ChatFormatting.RED));
+            return;
+        }
+
+        Path file = SongLibrary.diskTexturesDir().resolve(safe + ".png");
+        if (!Files.isRegularFile(file)) {
+            player.sendSystemMessage(Component.literal("Texture not found.")
+                    .withStyle(net.minecraft.ChatFormatting.RED));
+            return;
+        }
+
+        SongLibrary.deleteTextureFile(safe);
+        SongLibrary.get().removeTexture(safe);
+        broadcastTextureRemoved(safe, player);
+        player.sendSystemMessage(Component.literal("Removed texture: " + safe)
+                .withStyle(net.minecraft.ChatFormatting.YELLOW));
+        LOGGER.info("Texture removed: {} by {}", safe, player.getName().getString());
     }
 
     private static void handleUploadTexture(ServerPlayer player, String label, byte[] pngBytes) {
@@ -336,6 +439,31 @@ public class DiscyNetworking {
         }
     }
 
+    public static void broadcastSongRemoved(String hash, ServerPlayer fromPlayer) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeUtf(hash);
+        for (ServerPlayer player : fromPlayer.server.getPlayerList().getPlayers()) {
+            NetworkManager.sendToPlayer(player, SONG_REMOVED, buf);
+        }
+    }
+
+    private static void broadcastSongRenamed(String hash, String displayName, ServerPlayer fromPlayer) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeUtf(hash);
+        buf.writeUtf(displayName);
+        for (ServerPlayer player : fromPlayer.server.getPlayerList().getPlayers()) {
+            NetworkManager.sendToPlayer(player, SONG_RENAMED, buf);
+        }
+    }
+
+    private static void broadcastTextureRemoved(String label, ServerPlayer fromPlayer) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeUtf(label);
+        for (ServerPlayer player : fromPlayer.server.getPlayerList().getPlayers()) {
+            NetworkManager.sendToPlayer(player, TEXTURE_REMOVED, buf);
+        }
+    }
+
     private static void broadcastTextureAdded(String label, ServerPlayer fromPlayer) {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeUtf(label);
@@ -391,6 +519,25 @@ public class DiscyNetworking {
         buf.writeUtf(label, 128);
         buf.writeByteArray(pngBytes);
         NetworkManager.sendToServer(UPLOAD_TEXTURE, buf);
+    }
+
+    public static void sendRemoveSong(String songHash) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeUtf(songHash);
+        NetworkManager.sendToServer(REMOVE_SONG, buf);
+    }
+
+    public static void sendRemoveTexture(String label) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeUtf(label, 128);
+        NetworkManager.sendToServer(REMOVE_TEXTURE, buf);
+    }
+
+    public static void sendRenameSong(String songHash, String newDisplayName) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeUtf(songHash);
+        buf.writeUtf(newDisplayName, 64);
+        NetworkManager.sendToServer(RENAME_SONG, buf);
     }
 
     public static void requestSongList() {

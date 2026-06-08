@@ -1,0 +1,26 @@
+Discy — third-party notices
+============================
+
+Discy mod code
+  Copyright (c) Alfie Lawrence
+  Licensed under the MIT License — see LICENSE
+
+Bundled design assets and art
+  Random Nautilus, Mrdragonclaw
+  Included with the creators' permission (see README)
+
+Bundled library: JLayer (MP3 decoding)
+  Copyright (c) JavaZoom
+  Licensed under the GNU Lesser General Public License, version 2.1
+  Maven coordinates: javazoom:jlayer:1.0.1
+  Source: https://github.com/javazoom/jlayer
+  License text: COPYING.LGPL (included in this repository and release JARs)
+
+Optional runtime compatibility (not shipped in Discy JARs)
+  Sophisticated Core / Storage / Backpacks — P3pp3rF1y
+  Let's Do Furniture — respective mod authors
+  Install from official Modrinth or CurseForge releases only.
+
+Minecraft
+  Discy is not affiliated with Mojang or Microsoft.
+  Minecraft is a trademark of Mojang Synergies AB.

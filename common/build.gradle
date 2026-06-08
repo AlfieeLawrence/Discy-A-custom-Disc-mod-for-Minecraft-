@@ -3,7 +3,6 @@ architectury {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/discy.accesswidener")
     mixin {
         defaultRefmapName = "discy.refmap.json"
     }
@@ -13,4 +12,10 @@ dependencies {
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     implementation("javazoom:jlayer:1.0.1")
+}
+
+processResources {
+    from(rootProject.file("LICENSE"))
+    from(rootProject.file("NOTICE"))
+    from(rootProject.file("COPYING.LGPL"))
 }

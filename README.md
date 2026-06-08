@@ -4,10 +4,13 @@ A Minecraft 1.20.1 mod for custom music discs. Upload songs at the DJ deck, burn
 
 **Repository:** [github.com/AlfieeLawrence/Discy-A-custom-Disc-mod-for-Minecraft-](https://github.com/AlfieeLawrence/Discy-A-custom-Disc-mod-for-Minecraft-)
 
+> **Not affiliated with Mojang or Microsoft.** Minecraft is a trademark of Mojang Synergies AB.
+
 ## Features
 
 - **DJ Deck** — browse, search, and burn custom audio (OGG/MP3)
 - **Custom discs** — per-disc artwork and streaming playback via OpenAL
+- **Disc Design Studio** — in-game pixel editor for disc textures
 - **Permanent discs** — add baked-in discs via `data/discy/permanent_discs.json`
 - **Optional compatibility** — Sophisticated Core jukebox upgrades and Let's Do Furniture gramophones (install those mods separately)
 
@@ -48,9 +51,43 @@ Built JARs are in `fabric/build/libs/` and `forge/build/libs/`.
 
 Edit `common/src/main/resources/data/discy/permanent_discs.json` and add assets (`.ogg`, texture, `sounds.json` entry, lang strings). See `permanent_discs.example.json`.
 
+Only include audio and art you have the right to redistribute.
+
+## User-uploaded content
+
+Discy lets players upload their own songs and disc textures at the DJ deck or save designs from the Disc Design Studio. **That content is created by players, not shipped with the mod.**
+
+- You are responsible for having the rights to any audio or images you upload.
+- Do not upload copyrighted music or artwork without permission from the rights holder.
+- Server owners may wish to set rules for what players may upload.
+
+Discy stores uploads in the world's `discy/` folder (songs, textures, sidecars). Removing content in-game deletes those files on the server.
+
+## Credits & assets
+
+Bundled art in this repository is included with the creators' permission:
+
+| Assets | Credit |
+|--------|--------|
+| Mod code | [Alfie Lawrence](https://github.com/AlfieeLawrence) |
+| Design, art, mod icon, item textures, DJ Deck block textures | Random Nautilus, Mrdragonclaw |
+| Disc Design Studio block textures | Random Nautilus, Mrdragonclaw |
+
+Runtime-only references to vanilla Minecraft assets (for example the dispenser container GUI used by the DJ Deck screen) are not redistributed in this repository.
+
 ## License
 
-Discy is licensed under the **MIT License** — see [LICENSE](LICENSE).
+Discy mod code is licensed under the **MIT License** — see [LICENSE](LICENSE).
+
+Summary of other terms:
+
+| Component | License | Where |
+|-----------|---------|--------|
+| Discy source & mod code | MIT | [LICENSE](LICENSE) |
+| JLayer (bundled in release JARs) | LGPL 2.1 | [COPYING.LGPL](COPYING.LGPL) |
+| All third-party notices | — | [NOTICE](NOTICE) |
+
+`LICENSE`, `NOTICE`, and `COPYING.LGPL` are also packaged inside release JARs.
 
 ### Third-party libraries (shipped in Discy JARs)
 
@@ -58,7 +95,7 @@ Discy **bundles** [JLayer](https://github.com/javazoom/jlayer) (`javazoom:jlayer
 
 - JLayer is copyright JavaZoom and licensed under **LGPL 2.1**
 - Source: [github.com/javazoom/jlayer](https://github.com/javazoom/jlayer) or Maven `javazoom:jlayer:1.0.1`
-- LGPL 2.1 text: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+- Full license text: [COPYING.LGPL](COPYING.LGPL) ([GNU LGPL 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html))
 
 Discy itself (excluding bundled third-party libraries) is MIT-licensed.
 
@@ -75,4 +112,4 @@ Users must install compatibility mods from their official authors. Discy only ad
 - **Sophisticated Core / Storage / Backpacks** — copyright P3pp3rF1y, [All Rights Reserved](https://github.com/P3pp3rf1y/SophisticatedCore). Install from official releases only. Discy registers against public APIs (`IDiscHandler`, `SoundHandler`) and does not redistribute or modify Sophisticated files.
 - **Let's Do Furniture** — copyright the Furniture mod authors. Install from [official releases](https://modrinth.com/mod/lets-do-furniture) only, under that mod's own license. Discy provides optional gramophone integration via mixin when Furniture is installed and does not redistribute or modify Furniture files.
 
-If you publish forks or derivatives of Discy, keep these mods as separate optional runtime dependencies.
+If you publish forks or derivatives of Discy, keep these mods as separate optional runtime dependencies and retain [NOTICE](NOTICE) and [COPYING.LGPL](COPYING.LGPL) for JLayer.

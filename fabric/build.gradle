@@ -9,10 +9,6 @@ architectury {
 
 archivesBaseName = rootProject.archives_base_name + "-fabric"
 
-loom {
-    accessWidenerPath = project(":common").file("src/main/resources/discy.accesswidener")
-}
-
 configurations {
     common
     shadowCommon

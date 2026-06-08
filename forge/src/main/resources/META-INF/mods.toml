@@ -6,8 +6,8 @@ license = "MIT"
 modId = "discy"
 version = "${version}"
 displayName = "Discy"
-authors = "Alfie Lawrence"
-description = '''Custom music discs — burn uploads at the DJ deck or add permanent discs via JSON'''
+authors = "Alfie Lawrence, Random Nautilus, Mrdragonclaw"
+description = '''Custom music discs — burn uploads at the DJ deck or add permanent discs via JSON. Bundles JLayer (LGPL 2.1) for MP3 support — see NOTICE and COPYING.LGPL in the JAR. Not affiliated with Mojang.'''
 logoFile="icon.png"
 
 [[mixins]]

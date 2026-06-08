@@ -3,15 +3,14 @@
   "id": "discy",
   "version": "${version}",
   "name": "Discy",
-  "description": "Custom music discs — burn uploads at the DJ deck or add permanent discs via JSON",
-  "authors": ["Alfie Lawrence"],
+  "description": "Custom music discs — burn uploads at the DJ deck or add permanent discs via JSON. Bundles JLayer (LGPL 2.1) for MP3 — see NOTICE and COPYING.LGPL in the JAR. Not affiliated with Mojang.",
+  "authors": ["Alfie Lawrence", "Random Nautilus", "Mrdragonclaw"],
   "contact": {
     "sources": "https://github.com/AlfieeLawrence/Discy-A-custom-Disc-mod-for-Minecraft-"
   },
   "license": "MIT",
   "icon": "assets/discy/icon.png",
   "environment": "*",
-  "accessWidener": "discy.accesswidener",
   "mixins": [
     "discy.mixins.json",
     "discy.sophisticatedcore.mixins.json",

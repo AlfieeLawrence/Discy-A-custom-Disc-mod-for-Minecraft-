@@ -159,6 +159,10 @@ public final class DiskTextureManager {
         if (mc != null) mc.execute(() -> mc.getTextureManager().release(loc));
     }
 
+    public static void ensurePresetsExported() {
+        exportPresets();
+    }
+
     private static void exportPresets() {
         Path dir = diskTexturesDir();
         exportClasspathPng("/assets/discy/textures/item/blank_music_disc.png", dir.resolve("music_disc.png"));

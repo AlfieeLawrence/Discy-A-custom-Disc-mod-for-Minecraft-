@@ -54,6 +54,51 @@ public final class TextureUploadManager {
         EXECUTOR.submit(() -> uploadPaths(pickPngFiles(false), onStemReady, onError));
     }
 
+    public static void uploadPngBytes(String stem, byte[] bytes, Runnable onComplete, Consumer<String> onError) {
+        if (uploading) {
+            notifyError(onError, "Already uploading a texture.");
+            return;
+        }
+        if (bytes == null || bytes.length == 0) {
+            notifyError(onError, "Texture is empty.");
+            return;
+        }
+        if (bytes.length > MAX_PNG_BYTES) {
+            notifyError(onError, "Texture is too large (max 1 MB).");
+            return;
+        }
+        uploading = true;
+        String safeStem = stem.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_]", "_");
+        if (safeStem.isBlank()) {
+            notifyError(onError, "Invalid texture name.");
+            return;
+        }
+        DiscyNetworking.sendUploadTexture(safeStem, bytes);
+        Minecraft.getInstance().execute(() -> {
+            try {
+                DiskTextureManager.saveAndRegister(safeStem, bytes);
+                DiscPixelCache.evict(safeStem);
+                SongLibrary.get().addTexture(safeStem);
+            } catch (IOException e) {
+                notifyError(onError, "Could not register " + safeStem + ": " + e.getMessage());
+                return;
+            }
+            if (onComplete != null) {
+                onComplete.run();
+            }
+            uploading = false;
+        });
+    }
+
+    /** Opens a file dialog on a background thread; callback runs on the client thread. */
+    public static void pickSinglePngAsync(Consumer<Path> onPicked) {
+        EXECUTOR.submit(() -> {
+            List<Path> paths = pickPngFiles(false);
+            Path picked = paths.isEmpty() ? null : paths.get(0);
+            Minecraft.getInstance().execute(() -> onPicked.accept(picked));
+        });
+    }
+
     public static void pickAndUploadMultiple(Runnable onComplete, Consumer<String> onError) {
         if (uploading) {
             notifyError(onError, "Already uploading textures.");
