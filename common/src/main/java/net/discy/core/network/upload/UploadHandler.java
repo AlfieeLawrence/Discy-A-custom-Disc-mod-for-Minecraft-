@@ -173,6 +173,8 @@ public final class UploadHandler {
             DiscyNetworking.broadcastSongAdded(song, player);
             DiscyNetworking.distributeSongToOthers(player, song.hash());
         }
+        // Uploader is excluded from distributeSongToOthers; sync audio to their client too.
+        DiscyNetworking.distributeSongToClient(player, song.hash());
     }
 
     public static void dropSessionsFor(UUID playerUuid) {
