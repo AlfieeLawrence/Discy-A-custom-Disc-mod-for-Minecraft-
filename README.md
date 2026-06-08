@@ -70,8 +70,8 @@ Bundled art in this repository is included with the creators' permission:
 | Assets | Credit |
 |--------|--------|
 | Mod code | [Alfie Lawrence](https://github.com/AlfieeLawrence) |
-| Design, art, mod icon, item textures, DJ Deck block textures | Random Nautilus, Mrdragonclaw |
-| Disc Design Studio block textures | Random Nautilus, Mrdragonclaw |
+| Mod icon, DJ Deck block textures, most item textures | Random Nautilus |
+| Sap textures, UI textures, Disc Design Studio block textures | Mrdragonclaw |
 
 Runtime-only references to vanilla Minecraft assets (for example the dispenser container GUI used by the DJ Deck screen) are not redistributed in this repository.
 
@@ -107,7 +107,7 @@ Discy provides **optional** integration with other mods via mixins and public AP
 - Ship their source code, assets, or JARs
 - Include modified versions of their files
 
-Users must install compatibility mods from their official authors. Discy only adds small optional mixins and API hooks when those mods are present at runtime.
+Users must install compatible mods from their official authors. Discy only adds small optional mixins and API hooks when those mods are present at runtime.
 
 - **Sophisticated Core / Storage / Backpacks** — copyright P3pp3rF1y, [All Rights Reserved](https://github.com/P3pp3rf1y/SophisticatedCore). Install from official releases only. Discy registers against public APIs (`IDiscHandler`, `SoundHandler`) and does not redistribute or modify Sophisticated files.
 - **Let's Do Furniture** — copyright the Furniture mod authors. Install from [official releases](https://modrinth.com/mod/lets-do-furniture) only, under that mod's own license. Discy provides optional gramophone integration via mixin when Furniture is installed and does not redistribute or modify Furniture files.
