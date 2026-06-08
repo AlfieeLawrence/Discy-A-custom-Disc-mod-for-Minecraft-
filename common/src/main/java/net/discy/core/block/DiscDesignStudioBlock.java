@@ -1,5 +1,6 @@
 package net.discy.core.block;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -14,7 +15,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.discy.core.client.screen.DiscDesignStudioScreens;
+import net.discy.core.client.screen.DiscDesignStudioScreen;
 import org.jetbrains.annotations.Nullable;
 
 public class DiscDesignStudioBlock extends Block {
@@ -41,7 +42,10 @@ public class DiscDesignStudioBlock extends Block {
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) {
-            DiscDesignStudioScreens.open();
+            Minecraft mc = Minecraft.getInstance();
+            if (mc != null) {
+                mc.setScreen(new DiscDesignStudioScreen());
+            }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

@@ -71,8 +71,4 @@ public class ObjectRegistry {
         ResourceLocation id = new DiscyIdentifier(path);
         return ITEM_REGISTRAR.register(id, itemSupplier);
     }
-
-    public static <T extends Block> RegistrySupplier<T> registerWithItem(String name, Supplier<T> block) {
-        return net.discy.core.util.DiscyUtil.registerWithItem(BLOCKS, BLOCK_REGISTRAR, ITEMS, ITEM_REGISTRAR, new DiscyIdentifier(name), block);
-    }
 }

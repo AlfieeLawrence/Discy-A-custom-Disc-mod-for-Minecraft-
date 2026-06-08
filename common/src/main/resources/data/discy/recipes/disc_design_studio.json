@@ -1,17 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
   "category": "misc",
-  "key": {
-    "B": { "item": "discy:blank_music_disc" },
-    "D": { "item": "minecraft:red_dye" },
-    "P": { "item": "minecraft:painting" },
-    "W": { "item": "minecraft:oak_planks" }
-  },
+  "group": "discy:disc_design_studio",
   "pattern": [
-    "WPW",
-    "DBD",
-    "WPW"
+    "IDI",
+    "DCD",
+    "IDI"
   ],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "C": { "item": "minecraft:crafting_table" },
+    "D": { "tag": "discy:dyes" }
+  },
   "result": {
     "item": "discy:disc_design_studio",
     "count": 1
