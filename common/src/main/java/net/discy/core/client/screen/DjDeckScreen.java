@@ -306,6 +306,12 @@ public class DjDeckScreen extends AbstractContainerScreen<DjDeckMenu> {
         // and draw song hover highlights on top of the context menu.
         renderWidgets(g, mouseX, mouseY, partialTick);
         this.renderTooltip(g, mouseX, mouseY);
+        ItemStack carried = this.menu.getCarried();
+        if (!carried.isEmpty()) {
+            String count = carried.getCount() > 1 ? String.valueOf(carried.getCount()) : null;
+            ((AbstractContainerScreenInvokerMixin) this).discy$invokeRenderFloatingItem(
+                    g, carried, mouseX - 8, mouseY - 8, count);
+        }
         RenderSystem.enableDepthTest();
     }
 
